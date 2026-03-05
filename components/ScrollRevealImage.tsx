@@ -47,8 +47,8 @@ export default function ScrollRevealImage({
                         ease: 'none',
                         scrollTrigger: {
                             trigger: el,
-                            start: 'top 85%',
-                            end: 'top 35%',
+                            start: 'top 95%',
+                            end: 'top 50%',
                             scrub: 0.6,
                         },
                     }

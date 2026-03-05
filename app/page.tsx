@@ -7,8 +7,8 @@ import ScrollAnimation from '@/components/ScrollAnimation';
 import { galleryImages, categoryLabels } from '@/lib/data';
 import { HeroLabel, HeroTitle, HeroSubtitle, HeroCTA } from '@/components/HeroAnimated';
 import SVGDivider from '@/components/SVGDivider';
-import TypewriterText from '@/components/TypewriterText';
 import ScrollRevealImage from '@/components/ScrollRevealImage';
+import Lightbox from '@/components/Lightbox';
 
 const heroImage = 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=1600&q=80&fm=webp';
 
@@ -40,6 +40,18 @@ const instagramPosts = [
 export default function HomePage() {
   const heroRef = useRef<HTMLDivElement>(null);
   const [activeFilter, setActiveFilter] = useState('all');
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
+  const [tappedId, setTappedId] = useState<number | null>(null);
+
+  const openLightbox = (index: number) => {
+    setLightboxIndex(index);
+    setLightboxOpen(true);
+  };
+
+  const handleTap = (id: number) => {
+    setTappedId(prev => prev === id ? null : id);
+  };
 
   // Parallax on hero
   useEffect(() => {
@@ -113,8 +125,17 @@ export default function HomePage() {
             ))}
           </div>
           <div className="masonry-grid">
-            {filtered.map((img) => (
-              <div key={img.id} className="masonry-item">
+            {filtered.map((img, idx) => (
+              <div
+                key={img.id}
+                className={`masonry-item ${tappedId === img.id ? 'tapped' : ''}`}
+                onClick={() => openLightbox(idx)}
+                onTouchStart={() => handleTap(img.id)}
+                role="button"
+                tabIndex={0}
+                aria-label={`View ${img.title}`}
+                onKeyDown={(e) => { if (e.key === 'Enter') openLightbox(idx); }}
+              >
                 <Image
                   src={img.src}
                   alt={img.alt}
@@ -153,9 +174,9 @@ export default function HomePage() {
                 alt={`Tuscan wedding scene ${i + 1}`}
               />
               <div className="featured-text">
-                <TypewriterText style={{ fontStyle: 'italic', fontSize: 'clamp(16px, 3vw, 20px)' }}>
+                <p style={{ fontStyle: 'italic', fontSize: 'clamp(16px, 3vw, 20px)' }}>
                   {item.caption}
-                </TypewriterText>
+                </p>
               </div>
             </div>
           ))}
@@ -246,6 +267,14 @@ export default function HomePage() {
           </div>
         </section>
       </ScrollAnimation>
+
+      {lightboxOpen && (
+        <Lightbox
+          images={filtered}
+          currentIndex={lightboxIndex}
+          onClose={() => setLightboxOpen(false)}
+        />
+      )}
     </>
   );
 }
